@@ -1,0 +1,26 @@
+﻿<div class="card chart-block">
+    <div class="card-body">
+        <h3 class="card-title">Rapport CO2</h3>
+        <div class="chart-container">
+            <div class="chart-button-container">
+                <div class="chart-switch-container">
+                    <button class="btn chart-switch shadow-none active chart-selector" data-chart="RapportCo2Chart1"><i class="fa-solid fa-chart-bar"></i>  Emissions (en tonnes)</button>
+                    <button class="btn chart-switch shadow-none chart-selector" data-chart="RapportCo2Chart2"><i class="fa-solid fa-rotate-left"></i> N-1</button>
+                </div>
+                <div class="chart-print-container">
+                    <button class="btn print-chart" data-target="#RapportCo2Chart1-wrapper" data-canvas="RapportCo2Chart1"><i class="fa-solid fa-print"></i></button>
+                    <button class="btn print-chart" data-target="#RapportCo2Chart2-wrapper" data-canvas="RapportCo2Chart2" style="display:none;"><i class="fa-solid fa-print"></i></button>
+                </div>
+            </div>
+
+            <div class="chart-wrapper" id="RapportCo2Chart1-wrapper">
+                <canvas id="RapportCo2Chart1"></canvas>
+                <div class="chart-summary"></div>
+            </div>
+            <div class="chart-wrapper" id="RapportCo2Chart2-wrapper">
+                <canvas id="RapportCo2Chart2" style="display:none;"></canvas>
+                <div class="chart-summary"></div>
+            </div>
+        </div>
+    </div>
+</div>

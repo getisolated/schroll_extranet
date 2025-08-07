@@ -1,0 +1,148 @@
+﻿@using System.Reflection
+@using Extranet.Models.Documents
+@{
+    var nr = (NavResponse)ViewBag.Docs;
+    List<Document> docstmp = Document.GetDocuments(nr?.Data);
+    List<Document> docs = docstmp?.Where(x => x.Prop3.Type == typeof(IsDirectory) && x.Prop3.Value.ToLower() == "false")?.ToList();
+    List<Document> dirs = docstmp?.Where(x => x.Prop3.Type == typeof(IsDirectory) && x.Prop3.Value.ToLower() == "true")?.ToList();
+
+    var head = (docs?.Any() ?? false) ? docs.FirstOrDefault() : null;
+
+    var folder = ViewData["Folder"];
+    var title = ViewData["Title"];
+
+    var path = Context.Request.Query["subDirPath"].ToString();
+    var subDirPath = path.Split('\\');
+}
+
+<div class="fw-normal d-flex">
+    <h2 class="d-flex py-2 m-0"><span class="documents-desktop">@folder</span> <span class="fa-solid fa-chevron-right px-3 documents-desktop" style="font-size: 1.5rem;line-height: 2.5rem;"></span><b>&nbsp;@title</b></h2>
+    <img src="/img/icons/download.svg" alt="" id="downloadZipShared" class="btnDownloadSelectionShared" style="display:none;margin-left:2rem;cursor:pointer;">
+</div>
+
+@if (docs?.Any() ?? false)
+{
+    <div class="row py-4">
+        @if(subDirPath?.Length > 1)
+        {
+            var newpath = path.Replace(subDirPath[subDirPath.Length - 1], "");
+            if (newpath.EndsWith('\\'))
+                newpath = newpath.Remove(newpath.Length - 1);
+
+            <div class="col-md-12 py-3 px-5">
+                <a style="display:inline-block" href="/MyAccount/FileSharing?subDirPath=@(newpath)">
+                    <img src="~/img/folder-3-32.png" width="20" style="display:inline-block;margin-right:15px;margin-top:-3px;" /> Dossier parent
+                </a>
+            </div>
+        }
+
+        @if (dirs?.Any() ?? false)
+        {
+            foreach (var dir in dirs)
+            {
+                var docProperties = dir.GetType().GetProperties();
+
+                var newSubDirPath = dir.Prop4.Value;
+                var paths = newSubDirPath.Split('\\');
+
+                <div class="col-md-12 py-3 px-5">
+                    <a style="display:inline-block" href="/MyAccount/FileSharing?subDirPath=@dir.Prop4.Value">
+                        <img src="~/img/folder-32.png" width="20" style="display:inline-block;margin-right:15px;margin-top:-3px;" />@paths[paths.Length -1]
+                    </a>
+                </div>
+            }
+        }
+    </div>
+
+    <table id="table"
+           data-sticky-header="true"
+           data-toggle="table"
+           data-locale="fr-FR"
+           data-search="true"
+           data-search-selector=".customSearchFilter"
+           data-search-highlight="true"
+           data-sort-name="N° document"
+           data-sort-order="desc"
+           data-page-size="15"
+           data-page-list="[15,30,60]"
+           data-smart-display="false"
+           data-pagination="true">
+        <thead>
+            <tr>
+                <th data-field="actions" data-card-visible="false"></th>
+                @{
+                    int j = 0;
+                }
+                @foreach (PropertyInfo prop in head.GetType().GetProperties())
+                {
+                    var propValue = (PropDetails)prop.GetValue(head, null);
+                    if (propValue != null && !string.IsNullOrWhiteSpace(propValue.Header))
+                    {
+                        var dataFormatter = "";
+                        switch (propValue.Type)
+                        {
+                            case Type decType when decType == typeof(decimal):
+                                dataFormatter = "data-formatter=decFormatter";
+                                break;
+                            case Type PostingDateFilterType when PostingDateFilterType == typeof(PostingDateFilter):
+                            case Type InterventionDateFilterType when InterventionDateFilterType == typeof(InterventionDateFilter):
+                            case Type dateTimeType when dateTimeType == typeof(DateTime):
+                                dataFormatter = "data-formatter=datesFormatter";
+                                break;
+                        }
+                        <th data-field="@propValue.Header" data-sortable="true" style="cursor:pointer;" @dataFormatter>@propValue.Header</th>
+                    }
+                    j++;
+                }
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var doc in docs)
+            {
+                var docProperties = doc.GetType().GetProperties();
+                int i = 0;
+                <tr class="document">
+                    <td class="py-3 text-center">
+                        <input title="Sélection à télécharger" class="form-check-input mx-1 chkDownload" type="checkbox" value="" data-docno="@(((PropDetails)docProperties.First().GetValue(doc, null)).Value)">
+                    </td>
+                    @foreach (PropertyInfo prop in docProperties)
+                    {
+                        var propValue = (PropDetails)prop.GetValue(doc, null);
+                        if (propValue != null && !string.IsNullOrWhiteSpace(propValue.Header))
+                        {
+                            var customValue = propValue.Value;
+                            switch (propValue.Type)
+                            {
+                                case Type decType when decType == typeof(decimal):
+                                    customValue = Decimal.Parse(propValue.Value).ToString("000000000.00").Replace(",", "").Trim();
+                                    break;
+                                case Type PostingDateFilterType when PostingDateFilterType == typeof(PostingDateFilter):
+                                case Type InterventionDateFilterType when InterventionDateFilterType == typeof(InterventionDateFilter):
+                                case Type dateTimeType when dateTimeType == typeof(DateTime):
+                                    customValue = DateTime.Parse(propValue.Value).ToString("yyyyMMdd");
+                                    break;
+                            }
+
+                            <td data-propname="@propValue.Header" class="@(propValue.Type == typeof(decimal) ? " text-end" : "") py-3" style="position:relative;padding-left:1rem;padding-right:2rem;align-content: center;margin: 0.5rem 0px;">
+                                @customValue
+                            </td>
+                        }
+                        i++;
+                    }
+
+                    <td class="py-3" style="align-content: center;text-align:center;">
+                        <img title="Télécharger" src="/img/icons/download.svg" alt="" class="btnDownloadShared" style="display:block!important;" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-warning my-5" role="alert">
+        Aucun document trouvé
+    </div>
+}

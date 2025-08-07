@@ -1,0 +1,270 @@
+﻿* {
+    font-family: "Inter", sans-serif;
+}
+
+.wrapper {
+    display: flex;
+    width: 100%;
+}
+
+.container-fluid {
+    background-color: #FBFBFC;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+#sidebar {
+    width: 20vw;
+    min-width: 320px;
+    color: #fff;
+    height: 100vh;
+    overflow-y: auto;
+    transition: all 0.5s;
+    z-index: 1;
+}
+
+ul {
+    list-style-type: none;
+}
+
+#sidebar ul.components {
+    padding: 0px;
+    margin-bottom: 35px
+}
+
+#sidebar ul p {
+    margin: 0px;
+    margin-top: 10px;
+    padding: 0px 10px;
+    font-weight: 400;
+    font-size: 15px;
+}
+
+    .sidebar-link {
+        padding: 10px 4px;
+        font-weight: 300;
+        font-style: normal;
+        display: flex;
+        align-items: center;
+    }
+
+        .sidebar-link {
+            text-decoration: none;
+            transition: all 0.3s;
+            margin: 10px;
+            border-radius: 6px;
+        }
+
+a[data-toggle="collapse"] {
+    position: relative;
+}
+
+.dropdown-toggle::after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+
+ul.CTAs {
+    padding: 20px;
+}
+
+ul.CTAs a {
+    text-align: center;
+    font-size: 0.9em !important;
+    display: block;
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+
+a.entreprise {
+    background: #fff;
+}
+
+a.article,
+a.article:hover {
+    background: #6d7fcc !important;
+    color: #fff !important;
+}
+
+#content {
+    width: 100%;
+    padding: 20px;
+    min-height: 100vh;
+    transition: all 0.3s;
+}
+
+#sidebar-back {
+    display: none;
+    height: 100vh;
+    width: 100vw;
+    z-index: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+}
+
+ul.collapse, ul.collapsing {
+    margin-left: 1.5rem;
+    overflow: hidden;
+}
+
+a.menu-dropdown-toggle {
+    margin-bottom: 0px;
+}
+
+.account-choice {
+    cursor: pointer;
+}
+
+.switch-company, .company-dropdown {
+    padding: 0px;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+header {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    header {
+        display: block;
+    }
+
+    #sidebar {
+        margin-left: -320px;
+        position: absolute;
+        z-index: 10
+    }
+
+    #sidebar.active {
+        margin-left: 0;
+    }
+
+    #sidebar-back {
+        display: block;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 9
+    }
+
+    #sidebar-back.active {
+        opacity: 1;
+        transition: opacity 0.3s ease;
+        pointer-events: all;
+    }
+}
+
+#sidebar::-webkit-scrollbar, .container-fluid::-webkit-scrollbar {
+    width: 10px;
+}
+
+#sidebar::-webkit-scrollbar-track, .container-fluid::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#sidebar::-webkit-scrollbar-thumb, .container-fluid::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0);
+}
+
+#sidebar::-webkit-scrollbar-thumb:hover, .container-fluid::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.link-icon {
+    display: flex;
+    padding: 5px 10px;
+}
+
+.link-icon img {
+    object-fit: contain;
+}
+
+.dark {
+    filter: invert(1); /* Dark society icons */
+}
+
+.account-choices {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.account-choice-button {
+    color: white !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+.account-choice {
+    background: none;
+    color: black !important;
+    text-decoration: none;
+}
+
+.account-choice:hover {
+    background: rgba(0, 0, 0, 0.1) !important;
+}
+
+.mobile-navbar {
+    height: 10vh;
+    width: 100vw;
+    min-height: 100px
+}
+
+.mobile-navbar-toggler {
+    color: white;
+    display: flex;
+    align-items: center;
+    width: 40vw;
+    justify-content: space-around;
+    margin-right: 20px
+}
+
+#mobile-navbar-toggler-company-name{
+    font-size: 13px;
+}
+
+.header-logo {
+    max-height: 45px;
+    width: 40%;
+}
+
+    .header-logo img {
+        width: 100%;
+    }
+
+.company-logo {
+    object-fit: contain;
+    max-height: 40px;
+    max-width: 60px
+}
+
+.company-name {
+    text-transform: lowercase
+}
+
+.company-name::first-letter {
+    text-transform: uppercase
+}
+
+.company-dropdown{
+    position:relative;
+}
+
+.menu-dropdown-toggle{
+    position:relative;
+}
+
+.menu-dropdown-toggle::after {
+    content: '\002B'!important;
+    font-size: 24px;
+    margin-left: 10px;
+    border: none;
+}
+
+.menu-dropdown-toggle[aria-expanded="true"]::after {
+    content: '\2212'!important;
+}

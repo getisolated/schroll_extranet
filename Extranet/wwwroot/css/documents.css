@@ -1,0 +1,121 @@
+﻿.filter-input {
+    display: flex;
+    flex-direction: column
+}
+
+.advancedFilter {
+    display: none
+}
+
+    .advancedFilter.show {
+        display: flex
+    }
+
+table.documents-desktop {
+    display: table
+}
+
+.documents-desktop {
+    display: flex
+}
+
+.documents-mobile {
+    display: none
+}
+
+.document-mobile-filters-toggle {
+    display: none
+}
+
+.document-mobile-filters-dialog {
+    position: fixed;
+    top: auto;
+    right: auto;
+    left: auto;
+    bottom: 0;
+    margin: 0;
+    width: 100vw
+}
+
+.document-mobile-filters-content {
+    height: 100%
+}
+
+.document-mobile-filters-body {
+    padding-bottom: 4rem !important;
+}
+
+.filter-card {
+    width: fit-content, -moz-fit-content;
+    margin: 0 0.2rem;
+}
+
+.filter-card-body {
+    padding: 0 0.5rem;
+}
+
+.documents-mobile-navbar {
+    z-index: 8 !important
+}
+
+.card-view-title span + span::before {
+    content: ":";
+}
+
+.card-view {
+    align-items: center;
+}
+
+/*#region download*/
+.btnDownload {
+    display: none;
+    margin: auto;
+}
+
+#table > tbody > .document:hover img.btnDownload {
+    display: block;
+    cursor:pointer;
+}
+
+#table > tbody > .document:hover td:last-child{
+    font-size: 0;
+}
+
+/*#endregion*/
+
+
+@media (max-width: 768px) {
+    .documents-desktop {
+        display: none !important
+    }
+
+    .documents-mobile {
+        display: block
+    }
+
+    .document-mobile-filters-toggle {
+        display: block
+    }
+
+    #exportXlsx {
+        margin: 20px auto !important;
+    }
+
+    .header-container {
+        flex-direction: column;
+    }
+}
+
+.table-container {
+    margin-bottom: 50px;
+}
+
+#searchPeriodConfirm-mobile {
+    margin-top: 10px;
+    width: 100%;
+}
+
+#exportXlsx {
+    margin-left: 2rem;
+    cursor: pointer;
+}

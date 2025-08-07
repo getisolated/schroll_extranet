@@ -1,0 +1,68 @@
+﻿@using Extranet.Models.Members
+@{
+    ViewData["Title"] = "Paramètres";
+    ViewData["Réglages"] = "active";
+    Layout = "~/Views/Shared/_SidebarLayout.cshtml";
+
+    Member user = ViewBag.User;
+}
+<div class="p-4">
+    <h4 class="fw-bold mb-4">@ViewData["Title"]</h4>
+    <div class="col-md-5">
+        <h5 class="fw-bold">Information personnelles</h5>
+        <p>Pour modifier votre nom, prénom ou adresse e-mail, veuillez contacter notre <a href="mailTo:contact@schroll.fr" target="_blank" class="link-dark link-underline links">support technique</a>.</p>
+    </div>
+
+    <form class="mb-5">
+        <div class="col-md-5">
+            <label for="demand" class="form-label fw-bold">Nom</label>
+            <div class="input-container mb-3">
+                <input id="name" class="silent-input form-control not-rounded" type="text" name="nom" value="@user.Name" disabled />
+                <i class="fa-solid fa-lock container-icon"></i>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <label for="demand" class="form-label fw-bold">Prénom</label>
+            <div class="input-container mb-3">
+                <input id="lastName" class="silent-input form-control not-rounded" type="text" name="prenom" value="@user.Lastname" disabled />
+                <i class="fa-solid fa-lock container-icon"></i>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <label for="demand" class="form-label fw-bold">Adresse e-mail</label>
+            <div class="input-container mb-3">
+                <input id="mail" class="silent-input form-control not-rounded" type="type" name="email" value="@user.Email" disabled />
+                <i class="fa-solid fa-lock container-icon"></i>
+            </div>
+        </div>
+    </form>
+
+    <div class="col-md-5">
+        <h5 class="fw-bold mb-3">Mot de passe</h5>
+        <button id="updatePasswordButton" class="btn btn-primary not-rounded schroll-blue-bg-color btn-schroll">Mettre à jour le mot de passe</button>
+    </div>
+
+    <form id="passwordForm" class="mb-5" style="display:none;">
+        <div class="col-md-5">
+            <label for="currentPassword" class="form-label fw-bold">Mot de passe actuel</label>
+            <input id="currentPassword" class="form-control mb-3 not-rounded" type="password" name="currentPassword" />
+            <div id="currentPasswordError" class="text-danger" style="display:none;"></div>
+        </div>
+        <div class="col-md-5">
+            <label for="newPassword" class="form-label fw-bold">Nouveau mot de passe</label>
+            <input id="newPassword" class="form-control mb-3 not-rounded" type="password" name="newPassword" />
+            <div id="newPasswordError" class="text-danger" style="display:none;"></div>
+        </div>
+        <div class="col-md-5">
+            <label for="confirmPassword" class="form-label fw-bold">Confirmer le nouveau mot de passe</label>
+            <input id="confirmPassword" class="form-control mb-3 not-rounded" type="password" name="confirmPassword" />
+            <div id="confirmPasswordError" class="text-danger" style="display:none;"></div>
+        </div>
+        <div class="col-md-5">
+            <button id="submitPasswordButton" type="submit" class="btn btn-primary not-rounded schroll-blue-bg-color btn-schroll" disabled>Mettre à jour le mot de passe</button>
+        </div>
+    </form>
+</div>
+@section Scripts {
+    <script src="~/js/myAccount/settings.js"></script>
+}

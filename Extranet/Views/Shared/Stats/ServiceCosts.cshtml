@@ -1,0 +1,26 @@
+﻿<div class="card chart-block">
+    <div class="card-body">
+        <h3 class="card-title">Détails coût des prestations</h3>
+        <div class="chart-container">
+            <div class="chart-button-container">
+                <div class="chart-switch-container">
+                    <button class="btn chart-switch shadow-none active chart-selector" data-chart="ServiceCostsChart1"><i class="fa-solid fa-chart-bar"></i> Par mois (en €)</button>
+                    <button class="btn chart-switch shadow-none chart-selector" data-chart="ServiceCostsChart2"><i class="fa-solid fa-rotate-left"></i> N-1</button>
+                </div>
+                <div class="chart-print-container">
+                    <button class="btn print-chart" data-target="#ServiceCostsChart1-wrapper" data-canvas="#ServiceCostsChart1"><i class="fa-solid fa-print"></i></button>
+                    <button class="btn print-chart" data-target="#ServiceCostsChart2-wrapper" data-canvas="#ServiceCostsChart2" style="display:none;"><i class="fa-solid fa-print"></i></button>
+                </div>
+            </div>
+
+            <div class="chart-wrapper" id="ServiceCostsChart1-wrapper">
+                <canvas id="ServiceCostsChart1"></canvas>
+                <div class="chart-summary"></div>
+            </div>
+            <div class="chart-wrapper" id="ServiceCostsChart2-wrapper">
+                <canvas id="ServiceCostsChart2" style="display:none;"></canvas>
+                <div class="chart-summary"></div>
+            </div>
+        </div>
+    </div>
+</div>

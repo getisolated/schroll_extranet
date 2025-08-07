@@ -1,0 +1,80 @@
+﻿@using System.Globalization
+@using Extranet.Models.Members
+@using Extranet.Models.Stats
+@using System.Dynamic
+@{
+    ViewData["Title"] = "Statistiques";
+    ViewData["Statistiques"] = "active";
+    Layout = "~/Views/Shared/_SidebarLayout.cshtml";
+
+    var fromDate = ViewBag.fromDate;
+    DateTime fromDateDT = ViewBag.fromDateDT;
+    var toDate = ViewBag.toDate;
+    DateTime toDateDT = ViewBag.toDateDT;
+
+    string codeAdresseInter = ViewBag.ia;//issues des données des stats
+
+    List<string> adresses = ViewBag.codesAdresseInter;
+    Member user = ViewBag.User;
+}
+
+@section Styles {
+<link href="/css/statistiques.css" rel="stylesheet" />
+}
+<div class="p-3 main-back">
+    <h1 class="fw-bold">@ViewData["Title"]</h1>
+
+    <div class="row g-2 documents-desktop my-4 align-items-end">
+        <div class="col-md-2 filter-input">
+            <label for="searchPeriodFrom" class="form-label fw-bold">De :</label>
+            <input type="date" id="searchPeriodFrom" class="form-control not-rounded" value="@fromDateDT.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-2 filter-input">
+            <label for="searchPeriodTo" class="form-label fw-bold">À :</label>
+            <input type="date" id="searchPeriodTo" class="form-control not-rounded" value="@toDateDT.ToString("yyyy-MM-dd")" />
+        </div>
+        @if (adresses?.Any() ?? false)
+        {
+            <div class="col-md-4 filter-input">
+                <label for="customSearchFilter" class="form-label fw-bold">Adresses d'intervention</label>
+                <select class="form-control not-rounded" id="searchIA" multiple>
+                    @{
+                        var arrCodeAdresseInter = codeAdresseInter?.Split("|") ?? new string[] { "" };
+                    }
+                    <option value="" selected=@(codeAdresseInter == null || arrCodeAdresseInter.Length == adresses.Count())>Toutes les adresses</option>
+                    @foreach (var ai in adresses)
+                    {
+                        <option selected="@(arrCodeAdresseInter.Contains(ai.Split(" - ")[0]))" value="@ai.Split(" - ")[0]">@ai</option>
+                    }
+                </select>
+            </div>
+        }
+        <div class="col-md-2">
+            <button id="searchPeriodConfirm" class="btn btn-primary not-rounded">Valider</button>
+        </div>
+    </div>
+
+    @{
+        await Html.RenderPartialAsync("/Views/Shared/Stats/DechetsEvacues.cshtml");
+        await Html.RenderPartialAsync("/Views/Shared/Stats/TauxDeValorisation.cshtml");
+        await Html.RenderPartialAsync("/Views/Shared/Stats/NombreDePassage.cshtml");
+        if (user.CurrentAccount.Stat_ECO2 == DataProvider.NAV_TRUE)
+        {
+            await Html.RenderPartialAsync("/Views/Shared/Stats/RapportCo2.cshtml");
+        }
+        await Html.RenderPartialAsync("/Views/Shared/Stats/Facturation.cshtml");
+        await Html.RenderPartialAsync("/Views/Shared/Stats/ServiceCosts.cshtml");
+    }
+</div>
+
+<script type="text/javascript">
+    var fromDate = "@ViewBag.fromDate";
+    var toDate = "@ViewBag.toDate";
+    var data = @Html.Raw(Json.Serialize(ViewBag.AllStatistics));
+</script>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="/js/stats/statistiques.js" asp-append-version="true"></script>
+    <script src="/lib/multiselect-dropdown/multiselect-dropdown.js" asp-append-version="true"></script>
+}

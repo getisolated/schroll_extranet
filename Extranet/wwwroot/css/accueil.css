@@ -1,0 +1,30 @@
+﻿.items-row {
+    width: 100%;
+}
+
+.home-info-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: -webkit-fill-available;
+}
+
+.greeting-header {
+    display: flex;
+    align-items: center;
+    height: 60px;
+}
+
+.greeting-emoji {
+    height: 100%;
+    margin-left: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .items-row {
+        width: auto;
+    }
+    .home-info {
+        width: 70vw;
+    }
+}

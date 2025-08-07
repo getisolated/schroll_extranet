@@ -1,0 +1,94 @@
+﻿@using Extranet.Models.News
+@{
+    ViewData["Title"] = "Administration actualités";
+    Layout = "~/Views/Shared/_SidebarLayout.cshtml";
+
+    List<Actu> actualites = ViewBag.Actualites;
+}
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.snow.css" rel="stylesheet" />
+    <link href="/css/news.css" rel="stylesheet" type="text/css" />
+}
+
+<div class="p-4 main-back">
+<div class="row">
+    <div class="col-xl-12 text-center my-2">
+        <h1 class="fw-bold">Gestion des actualités</h1>
+    </div>
+</div>
+
+<form>
+    <div class="form-group">
+        <h5 class="col-xl-12 py-2 text-decoration-underline fw-bold">
+            Image (obligatoire) :
+        </h5>
+        <div class="col-xl-12 py-2">
+            L'image doit être au format JPG / JPEG / PNG<br />
+            Le poids de l'image doit être au maximum de 10Mo
+        </div>
+        <div class="col-xl-12 py-2">
+            <input class="form-control" id="myfile" type="file" accept="image/jpeg, image/jpg, image/png" />
+        </div>
+    </div>
+    <div class="form-group">
+        <h5 class="col-xl-12 py-2 text-decoration-underline fw-bold">
+            Description (obligatoire) :
+        </h5>
+        <!--https://quilljs.com/docs/quickstart-->
+        <div class="col-xl-6 mb-2">
+            <div class="form-control" id="editor" style="background:white;">
+                <p>Hello World!</p>
+                <p>Some initial <strong>bold</strong> text</p>
+                <p><br /></p>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <h5 class="col-xl-12 py-2 text-decoration-underline fw-bold">
+            Lien :
+        </h5>
+        <div class="col-xl-12 py-2">
+            Si le titre du lien est vide, il sera remplacé par la valeur par défaut : "Voir plus"<br />
+            Si le lien est vide, il ouvrira l'actualité sur la droite de la page
+        </div>
+        <div class="col-xl-12 py-2">
+            <input class="form-control" id="linkTitle" type="text" placeholder="Titre du lien" maxlength="50"/>
+        </div>
+        <div class="col-xl-12 py-2">
+            <input class="form-control" id="link" type="text" placeholder="Lien (https://www.google.fr)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-xl-12 py-2">
+            <p id="error" style="color:red;"></p>
+            <button class="btn btn-primary">
+                <input id="create-news" type="button" value="Valider mon actualité" style="all:unset;"/>
+            </button>
+        </div>
+    </div>
+</form>
+
+
+@await Html.PartialAsync("/Views/Shared/News/NewsContainer.cshtml", actualites)
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.js"></script>
+    <script src="/js/news/news.js"></script>
+    <script>
+        const toolbarOptions = [
+            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+            [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+            ['clean']                                         // remove formatting button
+        ];
+
+        const quill = new Quill('#editor', {
+            modules: {
+                toolbar: toolbarOptions
+            },
+            theme: 'snow'
+        });
+    </script>
+}

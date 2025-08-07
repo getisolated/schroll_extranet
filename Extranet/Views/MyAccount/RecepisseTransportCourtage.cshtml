@@ -1,0 +1,22 @@
+﻿@using Extranet.Models.Documents
+@using Microsoft.AspNetCore.Http
+@{
+    ViewData["Title"] = "Récépissés de transport et de courtage";
+    Layout = "~/Views/Shared/_SidebarLayout.cshtml";
+}
+@section Styles {
+    <link href="/css/documents.css" rel="stylesheet" />
+    <link href="/lib/font-awesome/css/all.min.css" rel="stylesheet" />
+}
+
+<div class="p-3 main-back">
+    @await Html.PartialAsync("/Views/Shared/Documents/FileSharingList.cshtml")
+</div>
+<input type="hidden" id="hfDocType" value="@DocTypes.Destruction.ToString()" />
+
+
+@section Scripts {
+    <script src="/js/documents/downloadSharedFiles.js" asp-append-version="true"></script>
+}
+
+

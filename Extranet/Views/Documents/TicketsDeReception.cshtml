@@ -1,0 +1,24 @@
+﻿@using Extranet.Models.Documents
+@using Microsoft.AspNetCore.Http
+@{
+    ViewData["Folder"] = "Mes documents";
+    ViewData["Title"] = "Tickets de réception";
+    ViewData["Tickets de réception"] = "active";
+    Layout = "~/Views/Shared/_SidebarLayout.cshtml";
+}
+@section Styles { 
+    <link href="/css/documents.css" rel="stylesheet" />
+    <link href="/lib/font-awesome/css/all.min.css" rel="stylesheet" />
+} 
+
+<div class="p-3 main-back">
+    @await Html.PartialAsync("/Views/Shared/Documents/DocumentList.cshtml")
+</div>
+<input type="hidden" id="hfDocType" value="@DocTypes.ReceiptTicket.ToString()" />
+
+
+@section Scripts {
+    <script src="/js/documents/filters.js" asp-append-version="true"></script>
+    <script src="/js/documents/downloadDocuments.js" asp-append-version="true"></script>
+    <script src="/lib/multiselect-dropdown/multiselect-dropdown.js" asp-append-version="true"></script>
+}

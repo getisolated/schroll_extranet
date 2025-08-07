@@ -1,0 +1,62 @@
+﻿@using Extranet.Models.News
+@using Extranet.Models.Members
+@{
+    Layout = null;
+    Actu actu = Model;
+    Member user = ViewBag.User;
+}
+<div class="news-item p-4" data-id="@actu.Id">
+    <div class="row">
+        <div class="col-12">
+            <img src="@actu.Image" class="p-2 pb-4" style="width:100%;max-height:25vh;object-fit:cover;">
+        </div>
+        <div class="col-12 px-4 actu-desc" style="font-size: larger; text-overflow: ellipsis;word-wrap: break-word;overflow-y: hidden;max-height:14.5rem;">
+            @Html.Raw(actu.Description)
+        </div>
+        <div class="col-12 px-4 py-3 d-flex flex-row justify-content-between">
+            @if (!string.IsNullOrWhiteSpace(actu.Link))
+            {
+                <a href="@actu.Link" class="news-item-link fw-bold link-dark link" style="font-size: larger;">
+                    @if (!string.IsNullOrWhiteSpace(actu.LinkTitle)) { @actu.LinkTitle } else { Html.Raw("Voir Plus"); } <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            } else
+            {
+
+                <a class="news-item-link fw-bold link-dark link" data-bs-toggle="modal" data-bs-target="#infosNewsModal-@actu.Id" style="font-size: larger;">
+                    @if (!string.IsNullOrWhiteSpace(actu.LinkTitle)) { 
+                        @actu.LinkTitle
+                    } else
+                    {
+                        Write("Voir plus");
+                    }
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+                @await Html.PartialAsync("/Views/Shared/News/NewsViewer.cshtml", actu)
+            }
+
+            @if (user.IsAdmin)
+            {
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteNewsModal">
+                    Supprimer
+                </button>
+                <div class="modal" id="deleteNewsModal" tabindex="-1" aria-labelledby="deleteNewsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteNewsModalLabel">Suppression actualité</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Voulez-vous supprimer cette actualité ?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                <button type="button" class="btn btn-danger delete-news-btn" data-bs-dismiss="modal">Supprimer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

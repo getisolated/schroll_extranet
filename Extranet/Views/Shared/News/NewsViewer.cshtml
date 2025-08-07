@@ -1,0 +1,23 @@
+﻿@using Extranet.Models.News
+@using Extranet.Models.Members
+@{
+    Layout = null;
+    Actu actu = Model;
+}
+<div class="modal fade-in-right news-infos" id="infosNewsModal-@actu.Id" tabindex="-1" aria-labelledby="infosNewsModalLabel-@actu.Id" aria-hidden="true">
+    <div class="modal-dialog news-infos-dialog">
+        <div class="modal-content news-infos-content">
+            <div class="modal-header news-infos-header">
+                @if (!string.IsNullOrWhiteSpace(actu.LinkTitle))
+                {
+                    <h5 class="modal-title" id="infosNewsModalLabel-@actu.Id">@actu.LinkTitle</h5>
+                }
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body news-infos-body scrollable p-5">
+                <img src="@actu.Image" class="pb-3" style="width:100%;max-height:25vh;object-fit:cover;">
+                <p>@Html.Raw(@actu.Description)</p>
+            </div>
+        </div>
+    </div>
+</div>

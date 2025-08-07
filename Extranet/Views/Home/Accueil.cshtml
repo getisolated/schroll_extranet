@@ -1,0 +1,124 @@
+﻿@using System.Globalization
+@using Extranet.Models.Members
+@using Extranet.Models.News
+@{
+    ViewData["Title"] = "Accueil";
+    ViewData["Accueil"] = "active";
+    Layout = "~/Views/Shared/_SidebarLayout.cshtml";
+
+    List<Actu> actualites = ViewBag.Actualites;
+
+    Member user = ViewBag.User;
+    var currentCompany = user.CurrentAccount?.Companies?.Company?.Where(x => x.CompanyName == user.CurrentCompany)?.FirstOrDefault();
+
+}
+@section Styles {
+    <link rel="stylesheet" href="/css/accueil.css">
+    <link rel="stylesheet" href="/css/news.css">
+}
+
+<div class="p-3 main-back">
+    <h1 class="fw-bold pt-3 greeting-header">Bienvenue @user.Lastname @user.Name  <img src="~/img/waving_hand.png" class="greeting-emoji" /></h1>
+    <div class="d-flex flex-row company-info pb-5">
+        <img class="pe-2" src="/img/building.svg" />
+        <div class="d-flex flex-column">
+            <p class="text-muted mb-0"><small>ENTREPRISE :</small></p>
+            <h6 class="fw-bold">@user.CurrentAccount?.AccountNo - @user.CurrentAccount?.AccountName</h6>
+        </div>
+    </div>
+
+    <h2 class="fw-bold pt-4" id="home-info-header">Découvrez votre espace client :</h2>
+    <div class="items-container scrollable">
+        <div class="items-row" id="home-info-container">
+            <div class="rounded-rectangle home-info p-3 py-2 d-flex align-items-center col-md-3 mb-4">
+                <div class="m-3 home-info-body">
+                    <div class="d-flex justify-content-between">
+                        <img class="pb-3 home-info-icon" src="/img/graph.svg" alt="Icon" width="40">
+                        <i class="fa-solid fa-xmark double-close-button"></i>
+                    </div>
+                    <p class="home-info-description">Parcourez vos statistiques et téléchargez-les en pdf en un clin d'oeil</p>
+                    <a href="/Stats/Statistiques" class="home-info-link fw-bold link-dark link">Mes statistiques &nbsp;&nbsp;&nbsp;&nbsp; <i class="fa-solid fa-chevron-right"></i></a>
+                </div>
+            </div>
+            <div class="rounded-rectangle home-info p-3 py-2 d-flex align-items-center col-md-3 mb-4">
+                <div class="m-3 home-info-body">
+                    <div class="d-flex justify-content-between">
+                        <img class="pb-3 home-info-icon" src="/img/user.svg" alt="Icon" width="40">
+                        <i class="fa-solid fa-xmark double-close-button"></i>
+                    </div>
+                    <p class="home-info-description">Une question ou un message pour votre conseiller ?</p>
+                    <a href="/MyAccount/Contact" class="home-info-link fw-bold link-dark link">
+                        C'est par ici &nbsp;&nbsp;&nbsp;&nbsp; <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+            @if(currentCompany?.AccountFeatChronoReg == DataProvider.NAV_TRUE){
+                <div class="rounded-rectangle home-info p-3 py-2 d-flex align-items-center col-md-3 mb-4">
+                    <div class="m-3 home-info-body">
+                        <div class="d-flex justify-content-between">
+                            <img class="pb-3 home-info-icon" src="/img/database.svg" alt="Icon" width="40">
+                            <i class="fa-solid fa-xmark double-close-button"></i>
+                        </div>
+                        <p class="home-info-description">Consultez, filtrez et exportez vos registres chronologiques d'un geste.</p>
+                        <a href="/Registre/RegistreMatiere" class="home-info-link fw-bold link-dark link">Mon registre matières &nbsp;&nbsp;&nbsp;&nbsp; <i class="fa-solid fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            }
+            <!--Masqué pour l'instant-->
+            @* <div class="rounded-rectangle home-info p-3 py-2 d-flex align-items-center col-md-3 mb-4" >
+                <div class="m-3 home-info-body">
+                    <div class="d-flex justify-content-between">
+                        <img class="pb-3 home-info-icon" src="/img/wallet.svg" alt="Icon" width="40">
+                        <i class="fa-solid fa-xmark double-close-button"></i>
+                    </div>
+                    <p class="home-info-description">Factures, avoirs ou décomptes d'achat : tout est dans comptabilité.</p>
+                    <a href="#" class="home-info-link fw-bold link-dark link">Ma comptabilité &nbsp;&nbsp;&nbsp;&nbsp; <i class="fa-solid fa-chevron-right"></i></a>
+                </div>
+            </div> *@
+        </div>
+    </div>
+
+    <h2 class="fw-bold pt-4">Aperçu de vos statistiques :</h2>
+    @{
+        await Html.RenderPartialAsync("/Views/Shared/Stats/ApercuStats.cshtml", false);
+    }
+    <a href="/Stats/Statistiques" class="home-info-link fw-bold link-dark link">
+        Toutes les statistiques
+        &nbsp;&nbsp;&nbsp;&nbsp; <i class="fa-solid fa-chevron-right"></i>
+    </a>
+
+    @await Html.PartialAsync("/Views/Shared/News/NewsContainer.cshtml", actualites)
+</div>
+
+
+@section Scripts {
+    <script src="/js/home/accueil.js"></script>
+    <script type="text/javascript" src="~/js/stats/accueilStats.js" asp-append-version="true"></script>
+    <script type="text/javascript">
+            //console.log('Scripts');
+        var fromDate = "@ViewBag.fromDate";
+        var toDate = "@ViewBag.toDate";
+        var data = @Html.Raw(Json.Serialize(ViewBag.AllStatistics));
+
+        var from = getDateFromString(fromDate);
+        var to = getDateFromString(toDate);
+
+        const previousDate = new Date();
+        previousDate.setMonth(from.getMonth() - 1);
+        previousDate.setFullYear(getYearString(from));
+
+        const fromMonth = getMonthString(from);
+        const toMonth = getMonthString(to);
+        const fromYear = getYearString(from);
+        const toYear = getYearString(to);
+        const previousMonth = getMonthString(previousDate);
+        const previousYear = getYearString(previousDate);
+
+        previousDate.setMonth(from.getMonth() - 1);
+
+        (function () {
+            //console.log('AllStatistics3', data);
+            setApercuStats(data == null ? {} : data);
+        })();
+    </script>
+}

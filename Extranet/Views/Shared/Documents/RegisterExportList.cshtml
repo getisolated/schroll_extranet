@@ -1,0 +1,260 @@
+﻿@using System.Reflection
+@using Extranet.Models.Documents
+@{
+    RegisterLineTypes registerLineTypes = ViewBag.RegisterLineTypes;
+    var nr = (NavResponse)ViewBag.Docs;
+    List<Document> docs = Document.GetDocuments(nr?.Data, registerLineTypes);
+    var head = (docs?.Any() ?? false) ? docs.FirstOrDefault() : null;
+
+    var prints = (NavResponse)ViewBag.PrintedRequests;
+    List<Document> printedRequests = Document.GetDocuments(prints?.Data, RegisterLineTypes.Chronologique);
+    var printedRequestsHead = (printedRequests?.Any() ?? false) ? printedRequests.FirstOrDefault() : null;
+
+    var currentYear = DateTime.Now.Year;
+    var selectedYear = currentYear;
+
+    if (!string.IsNullOrWhiteSpace(Context.Request.Query["year"]))
+        int.TryParse(Context.Request.Query["year"], out selectedYear);
+
+    if (selectedYear < (currentYear - 1) || selectedYear > currentYear)
+        selectedYear = currentYear;
+
+    var folder = ViewData["Folder"];
+    var title = ViewData["Title"];
+
+    //Type de filtre à créer dynamiquement
+    var filterTypes = new[] {
+        typeof(AIFilter) };
+
+    DateTime minDate = ViewBag.minDate;
+    DateTime fromDate = ViewBag.fromDate;
+    DateTime toDate = ViewBag.toDate;
+}
+
+<div class="fw-normal d-flex">
+    <h2 class="d-flex py-2 m-0"><b>&nbsp;@title</b></h2>
+</div>
+<div class="fw-normal d-flex" style="margin-top: -1rem;padding-left: .5rem;">
+    <h7 class="d-flex py-2 m-0">(Données prévisionnelles)</h7>
+</div>
+<div class="error" style="color:red;display:none;">
+    Vous ne pouvez exporter que les données de la même année.
+</div>
+
+<div class="row g-2 documents-desktop my-4 align-items-end">
+    <div class="col-md-2 filter-input">
+        <label for="searchPeriodFrom" class="form-label fw-bold">De :</label>
+        <input type="date" id="searchPeriodFrom" class="form-control not-rounded" min="@minDate.ToString("yyyy-MM-dd")" value="@fromDate.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-md-2 filter-input">
+        <label for="searchPeriodTo" class="form-label fw-bold">À :</label>
+        <input type="date" id="searchPeriodTo" class="form-control not-rounded" min="@minDate.ToString("yyyy-MM-dd")" value="@toDate.ToString("yyyy-MM-dd")" />
+    </div>
+    @if (docs?.Any() ?? false)
+    {
+        //Filtres dynamiques
+        foreach (PropertyInfo prop in head.GetType().GetProperties())
+        {
+            var propValue = (PropDetails)prop.GetValue(head, null);
+            if (propValue == null || string.IsNullOrWhiteSpace(propValue.Header)) continue;
+
+            if (!filterTypes.Any(x => x == propValue.Type)) continue;
+
+            List<string> aiData = new();
+            <div class="col-md-3 filter-input filter-dynamic">
+                <label for="search@(prop.Name)" class="form-label fw-bold">@propValue.Header</label>
+                <select id="search@(prop.Name)" name="search@(prop.Name)" class="form-select not-rounded" data-propname="@propValue.Header" data-filter=@(propValue.Type == typeof(AIFilter) ? "AIFilter" : "")>
+                    <option value="">Tout</option>
+                    @foreach (var doc in docs)
+                    {
+                        var _props = doc.GetType().GetProperties().Where(x => ((PropDetails)x.GetValue(doc, null))?.Type == propValue.Type);
+                        if (!_props?.Any() ?? false) continue;
+
+                        var _propValue = (PropDetails)_props.First().GetValue(doc, null);
+                        if (!string.IsNullOrWhiteSpace(_propValue.HiddenValue ?? _propValue.Value) && !aiData.Contains(_propValue.HiddenValue ?? _propValue.Value))
+                        {
+                            aiData.Add(_propValue.HiddenValue ?? _propValue.Value);
+                            var filterOption = _propValue.Value?.Trim();
+                            var optiontext = _propValue.HiddenValue ?? _propValue.Value;
+                            <option value="@filterOption">
+                                @optiontext
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+        }
+    }
+    <div class="col-md-4"><a href="#" class="btnDownloadRegisterExport" id="exportPdf" style="margin: 0.5em 0.5em 0.5em 2em;background: #dedede;padding: 0.75em;font-weight: 700;color: #000;text-decoration: none;"><img src="~/img/icons/download-icon.png" />Export registre chronologique client (.pdf)</a></div>
+</div>
+
+<div class="modal fade-in-right document-mobile-filters" id="documentMobileFiltersModal" tabindex="-1" aria-labelledby="documentMobileFiltersLabel" aria-hidden="true">
+    <div class="modal-dialog document-mobile-filters-dialog">
+        <div class="modal-content document-mobile-filters-content not-rounded">
+            <div class="modal-header document-mobile-filters-header">
+                <h2 class="m-1">Filtrer par :</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body document-mobile-filters-body scrollable p-4">
+                <div class="col-md-4 filter-input">
+                    <label for="searchFilter-mobile" class="form-label fw-bold">Rechercher</label>
+                    <input id="searchFilter-mobile" name="searchFilter-mobile" type="search" placeholder="Rechecher sur toutes les colonnes" class="form-control not-rounded customSearchFilter" />
+                </div>
+                <div class="col-md-4 filter-input">
+                    <label for="searchPeriodFrom-mobile" class="form-label fw-bold">De :</label>
+                    <input type="date" id="searchPeriodFrom-mobile" class="form-control not-rounded" min="@minDate.ToString("yyyy-MM-dd")" value="@fromDate.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-4 filter-input">
+                    <label for="searchPeriodTo-mobile" class="form-label fw-bold">À :</label>
+                    <input type="date" id="searchPeriodTo-mobile" class="form-control not-rounded" min="@minDate.ToString("yyyy-MM-dd")" value="@toDate.ToString("yyyy-MM-dd")" />
+                </div>
+                @if (docs?.Any() ?? false)
+                {
+                    var props = head.GetType().GetProperties();
+                    @foreach (PropertyInfo prop in props)
+                    {
+                        var propValue = (PropDetails)prop.GetValue(head, null);
+                        if (propValue == null || string.IsNullOrWhiteSpace(propValue.Header)) continue;
+
+                        if (!filterTypes.Any(x => x == propValue.Type)) continue;
+
+                        List<string> aiData = new();
+                        <div class="col-md-2 filter-input filter-dynamic">
+                            <label for="search@(prop.Name)" class="form-label fw-bold">@propValue.Header</label>
+                            <select id="search@(prop.Name)" name="search@(prop.Name)" class="form-select not-rounded" data-propname="@propValue.Header">
+                                <option value="">Tout</option>
+                                @foreach (var doc in docs)
+                                {
+                                    var _props = doc.GetType().GetProperties().Where(x => ((PropDetails)x.GetValue(doc, null))?.Type == propValue.Type);
+                                    if (!_props?.Any() ?? false) continue;
+
+                                    var _propValue = (PropDetails)_props.First().GetValue(doc, null);
+                                    if (!string.IsNullOrWhiteSpace(_propValue.HiddenValue ?? _propValue.Value) && !aiData.Contains(_propValue.HiddenValue ?? _propValue.Value))
+                                    {
+                                        aiData.Add(_propValue.HiddenValue ?? _propValue.Value);
+                                        var filterOption = _propValue.Value?.Trim();
+                                        var optiontext = _propValue.HiddenValue ?? _propValue.Value;
+                                        <option value="@filterOption">
+                                            @optiontext
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@if (printedRequests?.Any() ?? false)
+{
+    <label for="table" class="form-label fw-bold">Historique des demandes d'export</label>
+    <table id="table"
+           class="table text-nowrap"
+           data-toggle="table"
+           data-locale="fr-FR"
+           data-search="true"
+           data-search-selector=".customSearchFilter"
+           data-search-highlight="true"
+           data-sort-name="N° dossier"
+           data-sort-order="desc"
+           data-silent-sort="false"
+           data-sticky-header="true"
+           data-page-size="15"
+           data-page-list="[15,30,60]"
+           data-pagination="true">
+        <thead>
+            <tr>
+                @foreach (PropertyInfo prop in printedRequestsHead.GetType().GetProperties())
+                {
+                    var propValue = (PropDetails)prop.GetValue(printedRequestsHead, null);
+                    if (propValue != null && !string.IsNullOrWhiteSpace(propValue.Header))
+                    {
+                        var dataFormatter = "";
+                        switch (propValue.Type)
+                        {
+                            case Type decType when decType == typeof(decimal):
+                                dataFormatter = "data-formatter=decFormatter";
+                                break;
+                            case Type PostingDateFilterType when PostingDateFilterType == typeof(PostingDateFilter):
+                            case Type InterventionDateFilterType when InterventionDateFilterType == typeof(InterventionDateFilter):
+                            case Type dateTimeType when dateTimeType == typeof(DateTime):
+                                dataFormatter = "data-formatter=datesFormatter";
+                                break;
+                        }
+                        <th data-field="@propValue.Header" data-sortable="true" style="cursor:pointer;" @dataFormatter data-symbol="@propValue.Symbol">@propValue.Header</th>
+                    }
+                }
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var doc in printedRequests)
+            {
+                var docProperties = doc.GetType().GetProperties();
+                <tr class="register">
+                    @foreach (PropertyInfo prop in docProperties)
+                    {
+                        var propValue = (PropDetails)prop.GetValue(doc, null);
+                        if (propValue != null && !string.IsNullOrWhiteSpace(propValue.Header))
+                        {
+                            var customValue = propValue.Value;
+                            switch (propValue.Type)
+                            {
+                                case Type decType when decType == typeof(decimal):
+                                    customValue = Decimal.Parse(string.IsNullOrWhiteSpace(propValue.Value) ? "0" : propValue.Value).ToString("0000000000.00").Replace(",", "").Trim();
+                                    break;
+                                case Type PostingDateFilterType when PostingDateFilterType == typeof(PostingDateFilter):
+                                case Type InterventionDateFilterType when InterventionDateFilterType == typeof(InterventionDateFilter):
+                                case Type dateTimeType when dateTimeType == typeof(DateTime):
+                                    customValue = DateTime.Parse(propValue.Value).ToString("yyyyMMdd");
+                                    break;
+                            }
+
+                            <td data-propname="@propValue.Header" class="@(propValue.Type == typeof(decimal) ? " text-end" : "")" style="position:relative;align-content: center;margin: 0.5rem 0px;">
+                                @customValue
+                            </td>
+                        }
+                    }
+
+                    <td class="py-3 text-center">
+                        <img title="Télécharger" src="/img/icons/download.svg" alt="" class="btnDownloadRegisterExportLine" style="margin:auto;" data-docno="@(((PropDetails)docProperties.First().GetValue(doc, null)).DownloadId)" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-warning my-5" role="alert">
+        Aucun document trouvé
+    </div>
+}
+
+<nav class="navbar fixed-bottom navbar-light bg-light documents-mobile documents-mobile-navbar">
+    <div class="container-fluid">
+        <button class="btn flex-grow-1 news-item-link fw-bold link-dark link document-mobile-filters-toggle m-2" data-bs-toggle="modal" data-bs-target="#documentMobileFiltersModal"><i class="fa-solid fa-sliders mx-2"></i>Filtrer</button>
+    </div>
+</nav>
+<div class="modal" id="downloadModal" tabindex="-1" aria-labelledby="downloadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="downloadModalLabel">Génération des documents à télécharger</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" title="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-body-txt">
+                    <p>La génération de vos documents a commencé, veuillez patienter</p>
+                    <p>Le lien apparaîtra ci-dessous</p>
+                </div>
+                <ul id="ulDownloadDocs">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

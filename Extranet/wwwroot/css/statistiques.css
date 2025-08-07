@@ -1,0 +1,50 @@
+﻿.card {
+    border: none;
+}
+
+.card-title {
+    font-weight: bold;
+}
+
+.chart-switch, .chart-switch:active {
+    background-color: #eeeeef;
+    color: black;
+    border: none;
+    margin-bottom: 1rem;
+    transition: background-color 0.3s;
+}
+
+    .chart-switch:hover {
+        background-color: #ddddde;
+    }
+
+    .chart-switch.active, .chart-switch.active:active {
+        background-color: #edeefb;
+        color: #242e7c;
+    }
+
+.chart-block {
+    padding: 1rem;
+    margin: 0.5rem 0;
+}
+
+canvas {
+    max-height: 50vh;
+}
+
+.chart-container {
+    position: relative;
+}
+
+.print-chart {
+    background-color: #eeeeef;
+    color: black;
+    border: none;
+    margin-bottom: 1rem;
+    transition: background-color 0.3s;
+}
+
+.chart-button-container {
+    display: flex;
+    justify-content: space-between;
+}

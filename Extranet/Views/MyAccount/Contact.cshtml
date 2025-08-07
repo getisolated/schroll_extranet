@@ -1,0 +1,93 @@
+﻿@using Extranet.Models.Members
+@using Extranet.Models.Question
+@{
+    ViewData["Title"] = "Mon conseiller éco-commercial";
+    ViewData["Mon conseiller"] = "active";
+    Layout = "~/Views/Shared/_SidebarLayout.cshtml";
+
+    Member user = ViewBag.User;
+    var currentCompany = user.CurrentAccount?.Companies?.Company?.Where(x => x.CompanyName == user.CurrentCompany).FirstOrDefault();
+
+    var ResponsibilityCenters = ViewBag.ResponsibilityCenters;
+    var RCPerRow = 4;
+
+    List<Question> Questions = ViewBag.Questions;
+}
+<div class="p-4">
+    <h4 class="fw-bold mb-2">@ViewData["Title"]</h4>
+    <div class="row my-4 mb-5">
+        <div class="col-md-6 d-flex flex-row">
+            <div>
+                @{
+                    var contactPhotoSrc = !string.IsNullOrEmpty(currentCompany.AccountSalesPersonPhoto) ? @currentCompany.AccountSalesPersonPhoto : DataProvider._defaultContactPicture ;
+                }
+                <img src="@contactPhotoSrc" class="contact-picture me-3" />
+            </div>
+            <div class="">
+                <p class="fw-bold m-0">@currentCompany.AccountSalesPersonName</p>
+                <p class="mb-1">@currentCompany.AccountSalesPersonJobTitle</p>
+                <br />
+                <p class="m-0">@currentCompany.AccountSalesPersonEmail</p>
+                <p class="m-0">@currentCompany.AccountSalesPersonPhoneNo</p>
+                <a class="m-0 mt-2 link d-flex align-items-center fw-bold schroll-blue-color" href="mailto:@currentCompany.AccountSalesPersonEmail" target="_blank"><i class="fa-solid fa-envelope me-2 link-icon"></i> Contacter par mail</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+        @if (user.CurrentAccount?.Companies?.Company?.Any() ?? false)
+        {
+            @foreach (var company in user.CurrentAccount?.Companies?.Company)
+            {
+                <p class="fw-bold text-muted m-0">@company.CompanyName</p>
+                <p class="text-muted m-0">@company.CompanyPhone</p>
+                <br />
+            }
+        }
+        </div>
+    </div>
+    <h4 class="fw-bold mb-2">Contact</h4>
+    @for (int i = 0; i < ResponsibilityCenters.Length; i++)
+    {
+        if (i % RCPerRow == 0)
+        {
+            if (i != 0)
+            {
+                @:</div>
+            }
+            @:<div class="row my-4">
+        }
+
+        <div class="col-md-2">
+            <p class="fw-bold m-0">@ResponsibilityCenters[i].Name</p>
+            <p class="text-muted m-0">@ResponsibilityCenters[i].Address</p>
+            <p class="text-muted m-0">@ResponsibilityCenters[i].PostCode @ResponsibilityCenters[i].City</p>
+            <p class="text-muted m-0">@ResponsibilityCenters[i].PhoneNo</p>
+            <a href="mailto:@ResponsibilityCenters[i].Email" class="text-muted m-0 text-break" target="_blank">@ResponsibilityCenters[i].Email</a>
+        </div>
+    }
+
+    @if (ResponsibilityCenters.Length % RCPerRow != 0)
+    {
+        @:</div>
+    }
+
+    <h4 class="fw-bold mb-2">Horaires services administratifs</h4>
+    <div class="d-flex"><p class="text-muted me-2">Lundi - Vendredi</p><p>8:00 - 12:00 | 13:30 - 17:00</p></div>
+
+    <h4 class="fw-bold mb-2">Questions fréquentes :</h4>
+    <p class="text-muted mb-1">Vous ne trouvez pas la réponse à votre question ? Contactez-nous <a class="link-dark link-underline links" href="mailTo:contact@schroll.fr" target="_blank">par mail</a>.</p>
+
+    @foreach (var question in Questions)
+    {
+        <div class="question d-flex col-md-10">
+            <i class="fa-solid fa-circle-question m-2"></i>
+            <div class="question-text m-1">
+                <p class="fw-bold">@question.title</p>
+                <p>@Html.Raw(question.content)</p>
+            </div>
+        </div>
+    }
+
+</div>
+@section Scripts {
+    <script src="~/js/myAccount/contact.js"></script>
+}

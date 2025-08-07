@@ -1,0 +1,27 @@
+﻿<div class="card chart-block">
+    <div class="card-body">
+        <h3 class="card-title">Taux de valorisation</h3>
+        <div class="chart-container">
+            <div class="chart-button-container">
+                <div class="chart-switch-container">
+                    <button class="btn chart-switch shadow-none active chart-selector" data-chart="TauxDeValorisationChart1"><i class="fa-solid fa-chart-pie"></i> Par matières (en %)</button>
+                    <button class="btn chart-switch shadow-none chart-selector" data-chart="TauxDeValorisationChart2"><i class="fa-solid fa-rotate-left"></i> N-1</button>
+                </div>
+                <div class="chart-print-container">
+                    <button class="btn print-chart" data-target="#TauxDeValorisationChart1-wrapper" data-canvas="TauxDeValorisationChart1"><i class="fa-solid fa-print"></i></button>
+                    <button class="btn print-chart" data-target="#TauxDeValorisationChart2-wrapper" data-canvas="TauxDeValorisationChart2" style="display:none;"><i class="fa-solid fa-print"></i></button>
+                </div>
+            </div>
+
+            <div class="chart-wrapper" id="TauxDeValorisationChart1-wrapper">
+                <canvas id="TauxDeValorisationChart1"></canvas>
+                <div class="chart-summary"></div>
+            </div>
+            <div class="chart-wrapper" id="TauxDeValorisationChart2-wrapper">
+                <canvas id="TauxDeValorisationChart2" style="display:none;"></canvas>
+                <div class="chart-summary"></div>
+            </div>
+        </div>
+    </div>
+    <p class="text-center text-secondary">Taux de valorisation moyen</p>
+</div>

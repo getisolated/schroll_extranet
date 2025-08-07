@@ -1,0 +1,74 @@
+﻿<div class="row px-2">
+    <div class="col-md-3 mb-1 p-0">
+        <div id="tauxStat" class="rounded-rectangle home-stats p-4 d-flex flex-column justify-content-between position-relative">
+            <div>
+                <h2 class="fw-bold mb-1">Taux de valorisation</h2>
+                <p id="tauxDate" class="text-muted fw-bold mb-0" style="@(Model ? "display: none !important;" : "")"></p>
+            </div>
+            <div>
+                <p id="tauxValue" class="home-stats-value fw-bold text-break"></p>
+                <p id="tauxVariation" class="fw-bold text-muted"></p>
+            </div>
+            <div class="d-flex justify-content-between align-items-center" style="@(!Model ? "display: none !important;" : "")">
+                <button class="btn btn-light btn-sm stat-action" data-stat="taux" data-action="previous"><i class="fas fa-chevron-left"></i></button>
+                <p id="tauxCurrentMonth" class="text-muted fw-bold mb-0"></p>
+                <button class="btn btn-light btn-sm stat-action" data-stat="taux" data-action="next"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <i style="color:#c0c0c0;position:absolute;bottom:5px;">Taux de valorisation matière - Taux moyen</i>
+        </div>
+    </div>
+    <div class="col-md-3 mb-1 p-0">
+        <div id="dechetsStat" class="rounded-rectangle home-stats p-4 d-flex flex-column justify-content-between position-relative">
+            <div>
+                <h2 class="fw-bold mb-1">Déchets évacués</h2>
+                <p id="dechetsDate" class="text-muted fw-bold mb-0" style="@(Model ? "display: none !important;" : "")"></p>
+            </div>
+            <div>
+                <p id="dechetsValue" class="home-stats-value fw-bold text-break"></p>
+                <p id="dechetsVariation" class="fw-bold text-muted"></p>
+            </div>
+            <div class="d-flex justify-content-between align-items-center" style="@(!Model ? "display: none !important;" : "")">
+                <button class="btn btn-light btn-sm stat-action" data-stat="dechets" data-action="previous"><i class="fas fa-chevron-left"></i></button>
+                <p id="dechetsCurrentMonth" class="text-muted fw-bold mb-0"></p>
+                <button class="btn btn-light btn-sm stat-action" data-stat="dechets" data-action="next"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <i style="color:#c0c0c0;position:absolute;bottom:5px;">Tonnage estimé</i>
+        </div>
+    </div>
+    <div class="col-md-3 mb-1 p-0">
+        <div id="facturationStat" class="rounded-rectangle home-stats p-4 d-flex flex-column justify-content-between">
+            <div>
+                <h2 class="fw-bold mb-1">Total des dépenses</h2>
+                <p id="facturationDate" class="text-muted fw-bold mb-0" style="@(Model ? "display: none !important;" : "")"></p>
+            </div>
+            <div>
+                <p id="facturationValue" class="home-stats-value fw-bold text-break"></p>
+                <p id="facturationVariation" class="fw-bold text-muted"></p>
+            </div>
+            <div class="d-flex justify-content-between align-items-center" style="@(!Model ? "display: none !important;" : "")">
+                <button class="btn btn-light btn-sm stat-action" data-stat="facturation" data-action="previous"><i class="fas fa-chevron-left"></i></button>
+                <p id="facturationCurrentMonth" class="text-muted fw-bold mb-0"></p>
+                <button class="btn btn-light btn-sm stat-action" data-stat="facturation" data-action="next"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-1 p-0">
+        <div id="passagesStat" class="rounded-rectangle home-stats p-4 d-flex flex-column justify-content-between">
+            <div>
+                <h2 class="fw-bold mb-1">Nombre d'intervention</h2>
+                <p id="passagesDate" class="text-muted fw-bold mb-0" style="@(Model ? "display: none !important;" : "")"></p>
+            </div>
+            <div>
+                <p id="passagesValue" class="home-stats-value fw-bold text-break"></p>
+                <p id="passagesVariation" class="fw-bold text-muted"></p>
+            </div>
+            <div class="d-flex justify-content-between align-items-center" style="@(!Model ? "display: none !important;" : "")">
+                <button class="btn btn-light btn-sm stat-action" data-stat="passages" data-action="previous"><i class="fas fa-chevron-left"></i></button>
+                <p id="passagesCurrentMonth" class="text-muted fw-bold mb-0"></p>
+                <button class="btn btn-light btn-sm stat-action" data-stat="passages" data-action="next"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+}

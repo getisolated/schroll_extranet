@@ -1,0 +1,18 @@
+﻿@using Extranet.Models.News
+@using Extranet.Models.Members
+@{
+    Layout = null;
+    List<Actu> actualites = Model;
+}
+@if (actualites?.Any() ?? false)
+{
+    <h2 class="fw-bold pt-4">Actualités :</h2>
+    <div id="container" class="items-container scrollable mb-5">
+        <div class="items-row">
+                @foreach (Actu actu in actualites)
+                {
+                    @await Html.PartialAsync("/Views/Shared/News/NewsThumbnail.cshtml", actu)
+                }
+        </div>
+    </div>
+}

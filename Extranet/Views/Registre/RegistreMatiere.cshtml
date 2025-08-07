@@ -1,0 +1,28 @@
+﻿@using Extranet.Models.Documents
+@{
+    ViewData["Title"] = "Registre matières";
+    ViewData["Folder"] = "Registre chronologique";
+    ViewData["Registre matiere"] = "active";
+    Layout = "~/Views/Shared/_SidebarLayout.cshtml";
+    var action = ViewContext.RouteData.Values["action"];
+    var controller = ViewContext.RouteData.Values["controller"];
+}
+
+@section Styles {
+    <link href="/css/documents.css" rel="stylesheet" />
+    <link href="/lib/font-awesome/css/all.min.css" rel="stylesheet" />
+}
+
+<div class="p-3 main-back">
+    @await Html.PartialAsync("/Views/Shared/Documents/RegisterList.cshtml")
+</div>
+<input type="hidden" id="hfDocType" value="@DocTypes.WorkReport.ToString()" />
+
+
+@section Scripts {
+    <script src="/js/register/registerList.js" asp-append-version="true"></script>
+    <script src="/js/documents/filters.js" asp-append-version="true"></script>
+    <script src="/js/documents/downloadRegister.js" asp-append-version="true"></script>
+    <script src="/js/documents/exportExcel.js" asp-append-version="true"></script>
+    <script src="/lib/multiselect-dropdown/multiselect-dropdown.js" asp-append-version="true"></script>
+}

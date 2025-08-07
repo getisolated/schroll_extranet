@@ -1,0 +1,618 @@
+﻿@using Extranet.Extensions
+@using Extranet.Models.Members
+@using Microsoft.AspNetCore.Http
+@using System.Web
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IWebHostEnvironment Env
+
+@{
+    var Documents = "";
+    var Comptabilite = "";
+    var Registre = "";
+
+    int NewDocToRead = ViewBag.NewDocToRead;
+
+    Member user = ViewBag.User;
+    var currentCompany = user.CurrentAccount?.Companies?.Company?.Where(x => x.CompanyName == HttpUtility.UrlDecode(user.CurrentCompany)).FirstOrDefault();
+
+    string loginSociety = HttpUtility.UrlDecode(user?.CurrentCompany?.ToLower());
+
+    string mainColor = "#242E7C";
+    string secondaryColor = "#313d9e";
+    string darkColor = "#18205E";
+    string lightColor = "#3C4BBE";
+    string logoColor = "#949AE5";
+    string textColor = "#FFF";
+
+    string companyLogoTheme = "light";
+
+    switch (loginSociety)
+    {
+        case "neutralis":
+            mainColor = "#1F8CA5";
+            secondaryColor = "#31a7c1";
+            darkColor = "#1B788E";
+            lightColor = "#43BFDB";
+            logoColor = "#CBEEF5";
+            textColor = "#fff";
+            companyLogoTheme = "light";
+            break;
+
+        case "recybio":
+            mainColor = "#CBD786";
+            secondaryColor = "#DAE2A8";
+            darkColor = "#C2D071";
+            lightColor = "#E8EDC9";
+            logoColor = "#3E4517";
+            textColor = "#000";
+            companyLogoTheme = "dark";
+            break;
+
+        default:
+            mainColor = "#242E7C";
+            secondaryColor = "#313d9e";
+            darkColor = "#18205E";
+            lightColor = "#3C4BBE";
+            logoColor = "#949AE5";
+            textColor = "#FFF";
+            companyLogoTheme = "light";
+            loginSociety = "schroll sas";
+            break;
+    }
+
+    ViewData["MainColor"] = mainColor;
+    ViewData["SecondaryColor"] = secondaryColor;
+    ViewBag.darkColor = darkColor;
+    ViewBag.lightColor = lightColor;
+    ViewBag.logoColor = logoColor;
+    ViewBag.textColor = textColor;
+    ViewBag.companyLogoTheme = companyLogoTheme;
+    ViewBag.loginSociety = loginSociety;
+
+    string folderIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_folder.svg";
+
+    bool IsMaintenanceActivated = ViewBag.Maintenance ?? false;
+
+
+    @if (@ViewData["Attestations valorisation"] == "active" ||
+    @ViewData["Bulletins de travail"] == "active" ||
+    @ViewData["Tickets de réception"] == "active" ||
+    @ViewData["Certificats de destruction"] == "active" ||
+    @ViewData["Documents biodéchets"] == "active")
+    { Documents = "show"; }
+
+    @if (@ViewData["Factures"] == "active" ||
+    @ViewData["Avoirs"] == "active" ||
+    @ViewData["Décomptes d'achat"] == "active")
+    { Comptabilite = "show"; }
+
+    @if (@ViewData["Registre matiere"] == "active" ||
+    @ViewData["Registre prestation"] == "active" ||
+    @ViewData["Registre chronologique"] == "active")
+    { Registre = "show"; }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Extranet</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/toastr/dist/css/toastr.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Extranet.styles.css" asp-append-version="true" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.0/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/extensions/sticky-header/bootstrap-table-sticky-header.css">
+    @if (!Env.IsDevelopment())
+    {
+        <!-- Matomo -->
+        <script>
+            var _paq = window._paq = window._paq || [];
+            /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+            _paq.push(['trackPageView']);
+            _paq.push(['enableLinkTracking']);
+            (function() {
+              var u=https://matomo.groupeschroll.fr/;
+              _paq.push(['setTrackerUrl', u+'matomo.php']);
+              _paq.push(['setSiteId', '5']);
+              var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+              g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+            })();
+        </script>
+        <!-- End Matomo Code -->
+    }
+
+    @await RenderSectionAsync("Styles", required: false)
+
+    <style>
+        #sidebar ul li a:hover {
+        color: @textColor;
+        background: @lightColor;
+        }
+
+        #sidebar ul p {
+        color: @logoColor;
+        }
+
+        #sidebar a {
+        color: @textColor;
+        }
+
+        .active {
+        background: @secondaryColor;
+        }
+
+        #sidebar .sidebar-header {
+        background: @mainColor;
+        }
+    </style>
+</head>
+<body style="width: 100vw">
+    <div class="wrapper">
+        <nav id="sidebar" style="background-color: @mainColor">
+            <div class="sidebar-header">
+                <a class="sidebar-link header-logo" href="/Home"><img src="/img/schroll-blanc.png" alt=""></a>
+            </div>
+            @if (user.IsAdmin)
+            {
+                <ul class="list-unstyled components">
+                    <p class="sidebar-submenu-title">Mon compte</p>
+                    <li>
+                        @{
+                            string deconnexionIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_logout.svg";
+                        }
+                        <a href="/Auth/Logout" class="@ViewData["Déconnexion"] sidebar-link">
+                            <div class="link-icon">
+                                <img src="@deconnexionIcon" style="
+                                         object-fit: contain;" />
+                            </div>
+                            Déconnexion
+                        </a>
+                    </li>
+                </ul>
+            }
+            else
+            {
+                <ul class="list-unstyled components">
+                    <p class="sidebar-submenu-title">Espace client :</p>
+                    @if (user.CurrentAccount?.Companies?.Company?.Any() ?? false)
+                    {
+                        string companyLogo = "/img/" + currentCompany.CompanyName.ToLower() + "_blanc.png";
+                        <li>
+                            <a href="#espaceSubmenu" data-bs-toggle="collapse" aria-expanded="false" aria-controls="espaceSubmenu" class="dropdown-toggle sidebar-link company-dropdown">
+                                <div class="link-icon @companyLogoTheme">
+                                    <img src="@companyLogo" style="object-fit: contain; height: 50px; width: 40px" />
+                                </div>
+                                @currentCompany.CompanyName.Capitalize()
+                            </a>
+                            <ul class="collapse list-unstyled" id="espaceSubmenu" style="margin: 10px; border-radius: 5px; background-color: @secondaryColor;">
+                                @foreach (var company in user.CurrentAccount?.Companies?.Company)
+                                {
+                                    string companyLogo2 = "/img/" + company.CompanyName.ToLower() + "_blanc.png";
+                                    <li>
+                                        <a data-company="@company.CompanyName" href="#" class="@(company.CompanyName == user.CurrentCompany ? "active" : "") sidebar-link switch-company d-flex justify-content-between">
+                                            <div style="flex-direction: row; display: flex; align-items: center;">
+                                                <div class="link-icon @companyLogoTheme">
+                                                    <img src="@companyLogo2" style="object-fit: contain; height: 50px; width: 40px" />
+                                                </div>
+                                                @company.CompanyName.Capitalize()
+                                            </div>
+                                            @if (company.CompanyName == user.CurrentCompany)
+                                            {
+                                                <i class="fa-solid fa-circle-check text-@companyLogoTheme" style="color: #ffffff; margin: 20px;"></i>
+                                            }
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                </ul>
+                <ul class="list-unstyled components">
+                    <p class="sidebar-submenu-title">Menu principal</p>
+                    <li>
+                        @{
+                            string accueilIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_home.svg";
+                        }
+                        <a href="/Home/Accueil" class="@ViewData["Accueil"] sidebar-link">
+                            <div class="link-icon">
+                                <img src="@accueilIcon" style="
+                                 object-fit: contain;" />
+                            </div>
+                            Accueil
+                        </a>
+                    </li>
+                    @if (currentCompany?.AccountFeatDocuments == DataProvider.NAV_TRUE)
+                    {
+                        <li>
+                            @{
+                                string documentsIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_documents.svg";
+                            }
+                            <a href="#documentsSubmenu" data-bs-toggle="collapse" aria-expanded="@(Documents == "show" ? "true" : "false")" aria-controls="documentsSubmenu" class="dropdown-toggle menu-dropdown-toggle sidebar-link">
+                                <div class="link-icon">
+                                    <img src="@documentsIcon" style="
+                                 object-fit: contain;" />
+                                </div>
+                                Documents
+                            </a>
+                            <ul class="collapse list-unstyled @Documents" id="documentsSubmenu">
+                                @* MEP plus tard dans l'année *@
+                                @* <li>
+                        <a href="/Documents/AttestationsValorisation" class="@ViewData["Attestations valorisation"] sidebar-link">
+                        <div class="link-icon">
+                        <img src="@folderIcon" style="
+                        object-fit: contain;" />
+                        </div>
+                        Attestations valorisation
+                        </a>
+                        </li> *@
+                                <li>
+                                    <a href="/Documents/BulletinsDeTravail" class="@ViewData["Bulletins de travail"] sidebar-link">
+                                        <div class="link-icon">
+                                            <img src="@folderIcon" style="object-fit: contain;" />
+                                        </div>
+                                        Bulletins de travail
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/Documents/TicketsDeReception" class="@ViewData["Tickets de réception"] sidebar-link">
+                                        <div class="link-icon">
+                                            <img src="@folderIcon" style="
+                                         object-fit: contain;" />
+                                        </div>Tickets de réception
+                                    </a>
+                                </li>
+                                @if (currentCompany.AccountFeatDestructionCertificates == DataProvider.NAV_TRUE)
+                                {
+                                    <li>
+                                        <a href="/Documents/CertificatsDeDestruction" class="@ViewData["Certificats de destruction"] sidebar-link">
+                                            <div class="link-icon">
+                                                <img src="@folderIcon" style="
+                                                object-fit: contain;" />
+                                            </div>
+                                            Certificats de destruction
+                                        </a>
+                                    </li>
+                                }
+                                @if (currentCompany.AccountFeatBioDocuments == DataProvider.NAV_TRUE)
+                                {
+                                    <li>
+                                        <a href="/Documents/DocumentsBiodechets" class="@ViewData["Documents biodéchets"] sidebar-link">
+                                            <div class="link-icon">
+                                                <img src="@folderIcon" style="
+                                         object-fit: contain;" />
+                                            </div>
+                                            Documents biodéchets
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                    @if (currentCompany?.AccountTransportReceipt == DataProvider.NAV_TRUE)
+                    {
+                        <li>
+                            @{
+                                string courtageIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_inbox.svg";
+                            }
+                            <a href="/MyAccount/RecepisseTransportCourtage" class="@ViewData["courtage"] sidebar-link">
+                                <div class="link-icon">
+                                    <img src="@courtageIcon" style="
+                                         object-fit: contain;" />
+                                </div>
+                                Récépissés de transport et de courtage
+                            </a>
+                        </li>
+                    }
+                    @if (currentCompany?.AccountFeatAccounting == DataProvider.NAV_TRUE)
+                    {
+                        <li>
+                            @{
+                                string comptaIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_wallet.svg";
+                            }
+                            <a href="#comptaSubmenu" data-bs-toggle="collapse" aria-expanded="@(Comptabilite == "show" ? "true" : "false")" aria-controls="comptaSubmenu" class="dropdown-toggle menu-dropdown-toggle sidebar-link">
+                                <div class="link-icon">
+                                    <img src="@comptaIcon" style="
+                                        object-fit: contain;" />
+                                </div>
+                                Comptabilité
+                            </a>
+                            <ul class="collapse list-unstyled @Comptabilite" id="comptaSubmenu">
+                                <li>
+                                    <a href="/Compta/Factures" class="@ViewData["Factures"] sidebar-link">
+                                        <div class="link-icon">
+                                            <img src="@folderIcon" style="
+                                            object-fit: contain;" />
+                                        </div>
+                                        Factures
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/Compta/Avoirs" class="@ViewData["Avoirs"] sidebar-link">
+                                        <div class="link-icon">
+                                            <img src="@folderIcon" style="
+                                            object-fit: contain;" />
+                                        </div>
+                                        Avoirs
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/Compta/Decomptes_achat" class="@ViewData["Décomptes d'achat"] sidebar-link">
+                                        <div class="link-icon">
+                                            <img src="@folderIcon" style="
+                                        object-fit: contain;" />
+                                        </div>
+                                        Décomptes d'achat
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    @if (currentCompany?.AccountFeatChronoReg == DataProvider.NAV_TRUE)
+                    {
+                        string registreChronologiqueIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_database.svg";
+                        <li>
+                            <a href="#registreSubmenu" data-bs-toggle="collapse" aria-expanded="@(Registre == "show" ? "true" : "false")" aria-controls="registreSubmenu" class="dropdown-toggle menu-dropdown-toggle sidebar-link">
+                                <div class="link-icon">
+                                    <img src="@registreChronologiqueIcon" style="
+                                         object-fit: contain;" />
+                                </div>
+                                Registres
+                            </a>
+                            <ul class="collapse list-unstyled @Registre" id="registreSubmenu">
+                                <li>
+                                    <a href="/Registre/RegistreMatiere" class="@ViewData["Registre matiere"] sidebar-link">
+                                        <div class="link-icon">
+                                            <img src="@registreChronologiqueIcon" style="
+                                         object-fit: contain;" />
+                                        </div>
+                                        Registre matières
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/Registre/RegistrePrestation" class="@ViewData["Registre prestation"] sidebar-link">
+                                        <div class="link-icon">
+                                            <img src="@registreChronologiqueIcon" style="
+                                         object-fit: contain;" />
+                                        </div>
+                                        Registre prestations - consommables
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/Registre/RegistreChronologique" class="@ViewData["Registre chronologique"] sidebar-link">
+                                        <div class="link-icon">
+                                            <img src="@registreChronologiqueIcon" style="
+                                         object-fit: contain;" />
+                                        </div>
+                                        Registre chronologique
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    @if (currentCompany?.AccountFeatStatistics == DataProvider.NAV_TRUE)
+                    {
+                        <li>
+                            @{
+                                string statistiquesIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_graph.svg";
+                            }
+                            <a href="/Stats/Statistiques" class="@ViewData["Statistiques"] sidebar-link">
+                                <div class="link-icon">
+                                    <img src="@statistiquesIcon" style="
+                                         object-fit: contain;" />
+                                </div>
+                                Statistiques
+                            </a>
+                        </li>
+                    }
+                </ul>
+                <ul class="list-unstyled components">
+                    <p class="sidebar-submenu-title">Autres</p>
+                    <li>
+                        @{
+                            string directCollcetIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_truck.svg";
+                            string shareIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_share.svg";
+                        }
+                        <a class="sidebar-link" href="https://directcollect.groupeschroll.fr/" target="_blank">
+                            <div class="link-icon">
+                                <img src="@directCollcetIcon" style="
+                                         object-fit: contain;" />
+                            </div>
+                            Direct Collect
+                            <div class="link-icon">
+                                <img src="@shareIcon" style="
+                                         object-fit: contain;" />
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        @{
+                            string fipIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_laptop.svg";
+                        }
+                        <a class="sidebar-link" href="https://fip.groupeschroll.fr/login" target="_blank">
+                            <div class="link-icon">
+                                <img src="@fipIcon" style="
+                                         object-fit: contain;" />
+                            </div>
+                            Fiches d'Information<br />Préalable (FIP)
+                            <div class="link-icon">
+                                <img src="@shareIcon" style="
+                                         object-fit: contain;" />
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        @{
+                            string trackdechetsIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_globe.svg";
+                        }
+                        <a class="sidebar-link" href="https://trackdechets.beta.gouv.fr/" target="_blank">
+                            <div class="link-icon">
+                                <img src="@trackdechetsIcon" style="
+                                         object-fit: contain;" />
+                            </div>
+                            Trackdéchets
+                            <div class="link-icon">
+                                <img src="@shareIcon" style="
+                                         object-fit: contain;" />
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="list-unstyled components">
+                    <p class="sidebar-submenu-title">Mon compte</p>
+                    <li class="sidebar-link">
+                        <p>
+                            <b class="text-@companyLogoTheme">@user.Name @user.Lastname</b>
+                            <br>
+                            <b>@user.Email</b>
+                        </p>
+                    </li>
+                    <li>
+                        @{
+                            string monConseillerIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_user.svg";
+                        }
+                        <a href="/MyAccount/Contact" class="@ViewData["Mon conseiller"] sidebar-link">
+                            <div class="link-icon">
+                                <img src="@monConseillerIcon" style="
+                                         object-fit: contain;" />
+                            </div>
+                            Mon conseiller éco-commercial
+                        </a>
+                    </li>
+                    <li>
+                        @{
+                            string partageDeFichiersIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_inbox.svg";
+                        }
+                        <a href="/MyAccount/FileSharing" class="@ViewData["Partage de fichiers"] sidebar-link" style="position:relative;">
+                            <div class="link-icon">
+                                <img src="@partageDeFichiersIcon" style="
+                                         object-fit: contain;" />
+                            </div>
+                            Partage de fichiers
+                            @if (NewDocToRead > 0)
+                            {
+                                <span class="notif">@NewDocToRead</span>
+                            }
+                        </a>
+                    </li>
+                    <li>
+                        @{
+                            string reglagesIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_settings.svg";
+                        }
+                        <a href="/MyAccount/Settings" class="@ViewData["Réglages"] sidebar-link">
+                            <div class="link-icon">
+                                <img src="@reglagesIcon" style="
+                                         object-fit: contain;" />
+                            </div>
+                            Paramètres
+                        </a>
+                    </li>
+                    <li>
+                        @{
+                            string deconnexionIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_logout.svg";
+                        }
+                        <a href="/Auth/Logout" class="@ViewData["Déconnexion"] sidebar-link">
+                            <div class="link-icon">
+                                <img src="@deconnexionIcon" style="
+                                         object-fit: contain;" />
+                            </div>
+                            Déconnexion
+                        </a>
+                    </li>
+                </ul>
+                <div class="account-choices">
+                    <div class="btn-group dropup w-100">
+                        @{
+                            string changeAccountIcon = "/img/icons/" + @loginSociety + "/" + @loginSociety + "_refresh.svg";
+                        }
+                        <button id="myDropdown" type="button" class="btn dropdown-toggle account-choice-button sidebar-link w-100 p-3 py-5 text-wrap text-start" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <div class="link-icon">
+                                <img src="@changeAccountIcon" style="
+                                 object-fit: contain;" />
+                            </div>
+                            <p class="m-0 p-2">
+                                ENTREPRISE
+                                <br />
+                                <b>@user.CurrentAccount?.AccountNo - @user.CurrentAccount?.AccountName</b>
+                            </p>
+                        </button>
+                        <div class="dropdown-menu" style="max-height:20rem;overflow-y:auto;width:100%;">
+                            <ul class="px-0 account-choices-selection">
+                                @if (user.GetAccounts()?.Any() ?? false)
+                                {
+                                    foreach (var account in user.GetAccounts())
+                                    {
+                                        <li class="account">
+                                            <a data-account-name="@account.AccountName" data-account-no="@account.AccountNo" class="switch-account account-choice dropdown-item text-wrap">
+                                                @account.AccountNo - @account.AccountName
+                                            </a>
+                                        </li>
+                                    }
+                                    <li style="padding:1rem 1rem 0 1rem;">
+                                        <input type="search" class="searchAccounts" placeholder="Rechercher une entreprise" style="width:100%;padding:.5rem;" />
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            }
+        </nav>
+        <div id="sidebar-back" onclick="toggleSidebar()"></div>
+        <div class="container-fluid p-0">
+            <header>
+                <nav class="navbar navbar-dark bg-dark mobile-navbar position-static" style="background-color: @mainColor !important">
+                    <a class="sidebar-link header-logo" href="/Home"><img src="/img/schroll-blanc.png" alt=""></a>
+                    <button class="navbar-toggler mobile-navbar-toggler" onclick="toggleSidebar()" style="background-color: @lightColor">
+                        @if (user.CurrentAccount?.Companies?.Company?.Any() ?? false)
+                        {
+                            string companyLogo = "/img/" + currentCompany.CompanyName.ToLower() + "_blanc.png";
+                            <div id="mobile-navbar-toggler-logo" class="link-icon @companyLogoTheme">
+                                <img class="company-logo" src="@companyLogo" />
+                            </div>
+                            <h5 id="mobile-navbar-toggler-company-name" class="company-name fw-light m-0">@currentCompany.CompanyName</h5>
+                        }
+                        <i class="fa-solid fa-bars mx-3 mobile-navbar-toggler-icon"></i>
+                    </button>
+                </nav>
+            </header>
+            <div>
+
+                @if (IsMaintenanceActivated)
+                {
+                    <div style="padding:1rem;text-align:center;background:#000;color:white;font-weight:bold; text-transform:uppercase;font-size:1.1rem;">
+                        Site en cours de maintenance
+                    </div>
+                }
+                @RenderBody()
+
+                <img src="/img/loading/loader.svg" width="100" height="100" class="myloader" style="display:block;" />
+            </div>
+
+            <footer class="border-top footer text-muted">
+                <!-- Footer -->
+            </footer>
+        </div>
+
+    </div>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/popper/dist/popper.min.js"></script>
+    <script src="~/lib/toastr/dist/js/toastr.min.js"></script>
+    <script src="~/js/_SidebarLayout.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.29.0/tableExport.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/extensions/sticky-header/bootstrap-table-sticky-header.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table-locale-all.min.js"></script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
